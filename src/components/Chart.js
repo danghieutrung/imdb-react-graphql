@@ -23,7 +23,7 @@ const Chart = () => {
   }
   else {
   const results = service.ModifyResults(data)
-  const regression = service.regresssion(results)
+  const regression = service.regression(results)
   const imdbID = results.imdbID
   const options = {
     title: {
