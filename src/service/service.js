@@ -1,4 +1,4 @@
-import { regressionLine } from '../lib/regression'
+import Regression from '../lib/regression'
 
 import axios from 'axios'
 
@@ -47,9 +47,14 @@ const ModifyResults = (results) => {
 const regression = (data) => {
   const { ratings } = data
 
-  return ratings.map(({ season, info }) => (
-    { season: season, regression: regressionLine(info) }
-  ))
+  const regressionLines = ratings.map(({ season, info }) => {
+    const x = info.map(episode => episode[0])
+    const y = info.map(episode => episode[1])
+
+    return { season: season, regression: Regression.line(x, y, x.length) }
+  })
+
+  return regressionLines
 }
 
 export default { GetSearchResults, GetSeriesRatings, ModifyResults, regression }
