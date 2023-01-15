@@ -1,12 +1,8 @@
-import Regression from '../lib/regression'
-
 import axios from 'axios'
-
 
 const baseUrl = 'http://localhost:5000/imdb'
 
-
-const GetSearchResults = (search) => {
+const getSearchResults = (search) => {
   const fields = 'originalTitle, averageRating, imdbID, startYear, __typename'
   const query = `{series:search(title:"${search}"types: SERIES){${fields}}}`
   const url = `${baseUrl}?query=${query}`
@@ -14,20 +10,23 @@ const GetSearchResults = (search) => {
   return request.then(response => response.data.data.series)
 }
 
-const GetSeriesRatings = (imdbID) => {
-  const fields = '{imdbID originalTitle startYear endYear averageRating episodes {originalTitle seasonNumber episodeNumber averageRating imdbID}}'
+const getSeriesRatings = (imdbID) => {
+  const fields = '{imdbID originalTitle startYear endYear totalSeasons averageRating episodes {originalTitle seasonNumber episodeNumber averageRating imdbID}}'
   const query = `{series(imdbID: "${imdbID}")${fields}}`
   const url = `${baseUrl}?query=${query}`
   const request = axios.get(url)
   return request.then(response => response.data.data.series)
 }
 
-const ModifyResults = (results) => {
-  let currentSeason = '__'
+const modifyResults = (results) => {
+  let currentSeason = null
   let data = {
+    startYear: results.startYear,
+    endYear: results.endYear,
     imdbID: results.imdbID,
     originalTitle: results.originalTitle,
-    episodeTotal: results.episodes.length,
+    totalEpisodes: results.episodes.length,
+    totalSeasons: results.totalSeasons,
     ratings: []
   }
   const allEpisodesRatings = results.episodes
@@ -44,17 +43,4 @@ const ModifyResults = (results) => {
   return data
 }
 
-const regression = (data) => {
-  const { ratings } = data
-
-  const regressionLines = ratings.map(({ season, info }) => {
-    const x = info.map(episode => episode[0])
-    const y = info.map(episode => episode[1])
-
-    return { season: season, regression: Regression.line(x, y, x.length) }
-  })
-
-  return regressionLines
-}
-
-export default { GetSearchResults, GetSeriesRatings, ModifyResults, regression }
+export default { getSearchResults, getSeriesRatings, modifyResults }
