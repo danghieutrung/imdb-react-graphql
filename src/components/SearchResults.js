@@ -9,11 +9,11 @@ const SearchResults = () => {
   const search = new URLSearchParams(useLocation().search).get("q")
   useEffect(() => {
     searchService
-    .GetSearchResults(search)
-    .then(response => {
-      setResults(response)
-    })
-  },[])
+      .getSearchResults(search)
+      .then(response => {
+        setResults(response)
+      })
+  }, [])
 
   const ShowChart = (event) => {
     event.preventDefault()
@@ -21,9 +21,9 @@ const SearchResults = () => {
     navigate(`/chart/${imdbID}`)
   }
 
-  if (results==='') {
+  if (results === '') {
     return <div>Loading</div>
-  } else if (results.length===0) {
+  } else if (results.length === 0) {
     return <div>Not found any results with "${search}"</div>
   } else {
     return (
@@ -33,7 +33,7 @@ const SearchResults = () => {
             <li key={result.imdbID}>{result.imdbID} {result.originalTitle}<a href={`/results/${result.imdbID.trim()}`} value={result.imdbID.trim()} onClick={ShowChart}>Show</a></li>)}
         </ul>
       </div>
-    )  
+    )
   }
 }
 
