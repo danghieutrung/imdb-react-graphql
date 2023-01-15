@@ -3,109 +3,128 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import regression from '../lib/regression'
 
 const Chart = () => {
-  const [data, setData] = useState('')
+  const [data, setData] = useState(null)
+  const [buttonText, setButtonText] = useState('Hide all trend lines')
+  const [linesVisible, setLinesVisible] = useState(null) //no of ss
+
   let { imdbID } = useParams()
+
   useEffect(() => {
     service
-    .GetSeriesRatings(imdbID)
-    .then(response => {
-      setData(response)})
-    },[])
-  
-  if (data==='') {
-    return(
+      .getSeriesRatings(imdbID)
+      .then(response => {
+        console.log(response)
+        setLinesVisible(Array(response.totalSeasons).fill(true))
+        setData(response)
+      })
+  }, [])
+
+  if (data === null) {
+    return (
       <div>
-        Loading chart
+        Loading chart...
       </div>
-      )
+    )
   }
   else {
-  const results = service.ModifyResults(data)
-  const regression = service.regression(results)
-  const imdbID = results.imdbID
-  const options = {
-    title: {
-        text: results.originalTitle
-    },
-    subtitle: {
-        text: `Source: <a href='https://www.imdb.com/title/${imdbID}' target="_blank">IMDB</a>`
-    },
+    const results = service.modifyResults(data)
 
-    xAxis: {
-      min: 1,
-      max: results.episodeTotal
-    },
+    const imdbID = results.imdbID
 
-    yAxis: {
+    const options = {
       title: {
-          text: 'Number of Employees'
+        text: results.originalTitle
       },
-      min: 0,
-      max: 10
-    },
-    tooltip: {
-          // enabled: false,
-          shared: true,
-          useHTML: true,
-          headerFormat: '<table>',
-          pointFormat: '<tr><th>{point.options.custom.season}-{point.options.custom.episode} {point.options.custom.originalTitle}</th></tr>' +
-            '<tr><td style="color: {series.color}">Ratings: {point:y}</td>',
-          footerFormat: '</table>',
-          valueDecimals: 1
-    },
-    plotOptions: {
-      series: {
-        keys:['x','y','custom.originalTitle','custom.imdbID','custom.season','custom.episode']
-      }
-    },
-    series: results.ratings.flatMap((rating, index) => 
+      subtitle: {
+        text: `Source: <a href='https://www.imdb.com/title/${imdbID}' target="_blank">IMDB</a>`
+      },
+
+      xAxis: {
+        title: {
+          text: `${results.totalSeasons} seasons - ${results.totalEpisodes} episodes`
+        },
+        min: 1,
+        max: results.episodeTotal
+      },
+
+      yAxis: {
+        title: {
+          text: 'Ratings'
+        },
+        min: 0,
+        max: 10
+      },
+      tooltip: {
+        shared: true,
+        useHTML: true,
+        headerFormat: '<table>',
+        pointFormat: '<tr><th>{point.options.custom.season}-{point.options.custom.episode} {point.options.custom.originalTitle}</th></tr>' +
+          '<tr><td style="color: {series.color}">Ratings: {point:y}</td>',
+        footerFormat: '</table>',
+        valueDecimals: 1
+      },
+      plotOptions: {
+        series: {
+          keys: ['x', 'y', 'custom.originalTitle', 'custom.imdbID', 'custom.season', 'custom.episode']
+        }
+      },
+      series: results.ratings.flatMap((rating, index) =>
       ([{
         type: 'scatter',
         name: `Season ${rating.season}`,
         custom: {
-          blah: 'Mangooooo',
           imdbID: rating.imdbID
         },
         point: {
           events: {
-              click: function() {
-                window.location.replace(`https://www.imdb.com/title/${this.custom.imdbID.trim()}`)
+            click: function () {
+              window.location.replace(`https://www.imdb.com/title/${this.custom.imdbID.trim()}`)
             }
           }
         },
         data: rating.info,
-        colorIndex: index,
+        colorIndex: index % 10,
         marker: {
-        radius: 4,
-        symbol: 'circle'
-        }
+          radius: 4,
+          symbol: 'circle'
+        },
       }
-      ,{
+        , {
         type: 'line',
-        data: regression[index].regression,
+        data: regression.line(rating.info.map(x => x[0]), rating.info.map(x => x[1])),
         name: `Line ${rating.season}`,
-        colorIndex: index,
+        colorIndex: index % 10,
         showInLegend: false,
         marker: {
-            enabled: false
+          enabled: false
         },
-        states: {   
-            hover: {
+        states: {
+          hover: {
             lineWidth: 0
-            }
+          }
         },
-        enableMouseTracking: false
+        enableMouseTracking: false,
+        visible: linesVisible
       }]
-    ))
-  }
+      ))
+    }
 
-  return (
-    <div>
-      <HighchartsReact highcharts={Highcharts} options={options} />
-    </div>
-  )
+    const handleHideButton = (event) => {
+      event.preventDefault()
+      setLinesVisible(!linesVisible)
+      setButtonText(buttonText === 'Show all trend lines' ? 'Hide all trend lines' : 'Show all trend lines')
+    }
+
+    return (
+      <div>
+        <HighchartsReact highcharts={Highcharts} options={options} />
+        <button type="button" onClick={handleHideButton}>{buttonText}</button>
+
+      </div>
+    )
   }
 }
 
