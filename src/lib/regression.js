@@ -6,7 +6,7 @@ const line = (x, y, length = null) => {
   const coefs = coefficients(x, y, len)
 
   const firstX = x[0]
-  const lastX = x[length - 1]
+  const lastX = x[len - 1]
 
   return [[firstX, calculateYFromX(firstX, coefs)], [lastX, calculateYFromX(lastX, coefs)]]
 }
