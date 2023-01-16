@@ -1,12 +1,11 @@
 import searchService from '../service/service'
-import { useNavigate, useLocation } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 import { useEffect, useState } from 'react'
 import SearchForm from './SearchForm';
+import Loading from './Loading';
 
 const SearchResults = () => {
-  const navigate = useNavigate()
-
-  const [results, setResults] = useState('')
+  const [results, setResults] = useState(null)
 
   const search = new URLSearchParams(useLocation().search).get("q")
   useEffect(() => {
@@ -17,8 +16,8 @@ const SearchResults = () => {
       })
   }, [])
 
-  if (results === '') {
-    return <div>Loading</div>
+  if (results === null) {
+    return <Loading />
   } else if (results.length === 0) {
     return (<div>
       <SearchForm />

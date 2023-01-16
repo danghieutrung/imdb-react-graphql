@@ -5,9 +5,11 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import regression from '../lib/regression'
 import SearchForm from './SearchForm';
+import NotFoundURL from './NotFoundURL';
+import Loading from './Loading';
 
 const Chart = () => {
-  const [data, setData] = useState(null)
+  const [data, setData] = useState('')
   const [buttonText, setButtonText] = useState('Hide all trend lines')
   const [linesVisible, setLinesVisible] = useState(null)
 
@@ -23,18 +25,17 @@ const Chart = () => {
     service
       .getSeriesRatings(imdbID)
       .then(response => {
-        console.log(response)
-        setLinesVisible(Array(response.totalSeasons).fill(true))
+        setLinesVisible(Array(response?.totalSeasons).fill(true))
         setData(response)
       })
   }, [])
 
+  if (data === '') {
+    return <Loading />
+  }
+
   if (data === null) {
-    return (
-      <div>
-        Loading chart...
-      </div>
-    )
+    return <NotFoundURL />
   }
 
   const results = service.modifyResults(data)

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { AiOutlineSearch } from "react-icons/ai";
 
 const SearchForm = () => {
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(null)
 
   const Search = (event) => {
     event.preventDefault()
