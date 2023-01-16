@@ -4,13 +4,13 @@ import {
 } from "react-router-dom"
 import SearchResults from "./components/SearchResults"
 import Chart from "./components/Chart"
-import Menu from "./components/Menu"
+import Home from "./components/Home"
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Menu />} />
+        <Route path="/" element={<Home />} />
         <Route path="/find" element={<SearchResults />} />
         <Route path="/chart/:imdbID" element={<Chart />} />
       </Routes>
