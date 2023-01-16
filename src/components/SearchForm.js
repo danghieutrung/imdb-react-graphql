@@ -1,26 +1,26 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { AiOutlineSearch } from "react-icons/ai";
 
 const SearchForm = () => {
   const [search, setSearch] = useState('')
 
-  const navigate = useNavigate()
-
   const Search = (event) => {
     event.preventDefault()
-    navigate(`/find?q=${event.target[0].value}`)
+    window.location.replace(`/find?q=${event.target[0].value}`)
   }
-  
+
   const handleSearchChange = (event) => {
     setSearch(event.target.value)
   }
 
   return (
     <div>
-      <form onSubmit={Search}>
-        <div>name: <input value={search} onChange={handleSearchChange}/></div>
-        <div><button type="submit">search</button></div>
-      </form>
+      <div className='container'>
+        <form onSubmit={Search} className='search-form'>
+          <input value={search} onChange={handleSearchChange} placeholder='Search IMDB-GraphQL' />
+          <button type="submit"><AiOutlineSearch id='magnifying-glass-icon' /></button>
+        </form>
+      </div>
     </div>
   )
 }

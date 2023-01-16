@@ -1,6 +1,8 @@
 import searchService from '../service/service'
 import { useNavigate, useLocation } from "react-router-dom"
 import { useEffect, useState } from 'react'
+import SearchForm from './SearchForm';
+
 const SearchResults = () => {
   const navigate = useNavigate()
 
@@ -15,22 +17,28 @@ const SearchResults = () => {
       })
   }, [])
 
-  const ShowChart = (event) => {
-    event.preventDefault()
-    const imdbID = event.target.attributes.value.value
-    navigate(`/chart/${imdbID}`)
-  }
-
   if (results === '') {
     return <div>Loading</div>
   } else if (results.length === 0) {
-    return <div>Not found any results with "${search}"</div>
+    return (<div>
+      <SearchForm />
+      <h1>Not found any results with "{search}"</h1>
+    </div>)
   } else {
     return (
       <div>
+        <SearchForm />
+        <h1 id='search-results-heading'>Search "{search}"</h1>
         <ul>
           {results.map(result =>
-            <li key={result.imdbID}>{result.imdbID} {result.originalTitle}<a href={`/results/${result.imdbID.trim()}`} value={result.imdbID.trim()} onClick={ShowChart}>Show</a></li>)}
+            <div>
+              <li key={result.imdbID}><a href={`/chart/${result.imdbID.trim()}`} value={result.imdbID.trim()}><b>{result.originalTitle}</b></a></li>
+              {(result.startYear === result.endYear || result.endYear === null)
+                ? <li>{result.startYear}</li>
+                : <li>{result.startYear}-{result.endYear}</li>}
+              <li>Rating: {result.averageRating}</li>
+            </div>
+          )}
         </ul>
       </div>
     )
