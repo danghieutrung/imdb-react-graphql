@@ -3,7 +3,7 @@ import axios from 'axios'
 const baseUrl = 'http://localhost:5000/imdb'
 
 const getSearchResults = (search) => {
-  const fields = 'originalTitle, averageRating, imdbID, startYear, __typename'
+  const fields = 'originalTitle, averageRating, imdbID, startYear, endYear, __typename'
   const query = `{series:search(title:"${search}"types: SERIES){${fields}}}`
   const url = `${baseUrl}?query=${query}`
   const request = axios.get(url)
